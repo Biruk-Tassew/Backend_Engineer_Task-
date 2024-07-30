@@ -21,6 +21,10 @@ import {
 } from "./schema/product.schema";
 import { createSessionSchema } from "./schema/session.schema";
 import { createUserSchema } from "./schema/user.schema";
+import { handleVideoCompression, upload } from "./middleware/upload.middleware";
+import { createAdGraphicHandler, deleteAdGraphicHandler, getAdGraphicHandler, updateAdGraphicHandler } from "./controller/adGraphic.controller";
+import { createAdGraphicSchema, updateAdGraphicSchema } from "./schema/adGraphic.schema";
+import { validateFilePresence } from "./middleware/validateFilePresence";
 
 function routes(app: Express) {
   /**
@@ -35,6 +39,120 @@ function routes(app: Express) {
    *         description: App is up and running
    */
   app.get("/healthcheck", (req: Request, res: Response) => res.sendStatus(200));
+
+   /**
+   * @openapi
+   * '/api/ad-graphics':
+   *  post:
+   *     tags:
+   *     - AdGraphic
+   *     summary: Upload new ad graphics (images or videos)
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         multipart/form-data:
+   *           schema:
+   *             $ref: '#/components/schemas/CreateAdGraphicInput'
+   *     responses:
+   *       200:
+   *         description: Ad graphics uploaded successfully
+   *         content:
+   *          application/json:
+   *           schema:
+   *              $ref: '#/components/schemas/AdGraphicSchema'
+   */
+   app.post(
+    "/api/ad-graphics",
+    [requireUser, upload.single('file'), handleVideoCompression, validateFilePresence , validateResource(createAdGraphicSchema)],
+    createAdGraphicHandler
+  );
+
+  /**
+   * @openapi
+   * '/api/ad-graphics/{id}':
+   *  get:
+   *     tags:
+   *     - AdGraphic
+   *     summary: Get ad graphics by ID
+   *     parameters:
+   *      - name: id
+   *        in: path
+   *        description: The ID of the ad graphics
+   *        required: true
+   *     responses:
+   *       200:
+   *         description: Ad graphics retrieved successfully
+   *         content:
+   *          application/json:
+   *           schema:
+   *              $ref: '#/components/schemas/AdGraphicSchema'
+   *       404:
+   *         description: Ad graphics not found
+   */
+  app.get(
+    "/api/ad-graphics/:id",
+    validateResource(createAdGraphicSchema),
+    getAdGraphicHandler
+  );
+
+  /**
+   * @openapi
+   * '/api/ad-graphics/{id}':
+   *  put:
+   *     tags:
+   *     - AdGraphic
+   *     summary: Update ad graphics by ID
+   *     parameters:
+   *      - name: id
+   *        in: path
+   *        description: The ID of the ad graphics
+   *        required: true
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         multipart/form-data:
+   *           schema:
+   *             $ref: '#/components/schemas/UpdateAdGraphicInput'
+   *     responses:
+   *       200:
+   *         description: Ad graphics updated successfully
+   *         content:
+   *          application/json:
+   *           schema:
+   *              $ref: '#/components/schemas/AdGraphicSchema'
+   *       404:
+   *         description: Ad graphics not found
+   */
+  app.put(
+    "/api/ad-graphics/:id",
+    [requireUser, upload.single('file'), handleVideoCompression, validateResource(updateAdGraphicSchema)],
+    updateAdGraphicHandler
+  );
+
+  /**
+   * @openapi
+   * '/api/ad-graphics/{id}':
+   *  delete:
+   *     tags:
+   *     - AdGraphic
+   *     summary: Delete ad graphics by ID
+   *     parameters:
+   *      - name: id
+   *        in: path
+   *        description: The ID of the ad graphics
+   *        required: true
+   *     responses:
+   *       200:
+   *         description: Ad graphics deleted successfully
+   *       404:
+   *         description: Ad graphics not found
+   */
+  app.delete(
+    "/api/ad-graphics/:id",
+    [requireUser, validateResource(createAdGraphicSchema)],
+    deleteAdGraphicHandler
+  );
+
 
   /**
    * @openapi

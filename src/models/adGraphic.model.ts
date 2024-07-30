@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 export interface AdGraphicInput {
+  user: string
   fileName: string;
   fileType: string; 
   fileSize: number; 
