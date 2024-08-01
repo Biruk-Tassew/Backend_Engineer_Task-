@@ -21,10 +21,11 @@ import {
 } from "./schema/product.schema";
 import { createSessionSchema } from "./schema/session.schema";
 import { createUserSchema } from "./schema/user.schema";
-import { handleVideoCompression, upload } from "./middleware/upload.middleware";
 import { createAdGraphicHandler, deleteAdGraphicHandler, getAdGraphicHandler, updateAdGraphicHandler } from "./controller/adGraphic.controller";
 import { createAdGraphicSchema, updateAdGraphicSchema } from "./schema/adGraphic.schema";
 import { validateFilePresence } from "./middleware/validateFilePresence";
+import UploadService from "./service/upload.service";
+import upload from "./middleware/upload.middleware";
 
 function routes(app: Express) {
   /**
@@ -63,7 +64,7 @@ function routes(app: Express) {
    */
    app.post(
     "/api/ad-graphics",
-    [requireUser, upload.single('file'), handleVideoCompression, validateFilePresence , validateResource(createAdGraphicSchema)],
+    [requireUser , upload.single('file'), validateResource(createAdGraphicSchema)],
     createAdGraphicHandler
   );
 
@@ -125,7 +126,7 @@ function routes(app: Express) {
    */
   app.put(
     "/api/ad-graphics/:id",
-    [requireUser, upload.single('file'), handleVideoCompression, validateResource(updateAdGraphicSchema)],
+    [requireUser, upload.single('file'), validateResource(updateAdGraphicSchema)],
     updateAdGraphicHandler
   );
 

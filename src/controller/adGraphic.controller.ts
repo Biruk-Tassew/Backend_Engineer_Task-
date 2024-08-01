@@ -6,39 +6,49 @@ import {
   findAndUpdateAdGraphic,
   findAdGraphic,
 } from "../service/adGraphic.service";
+import CloudinaryService from "../service/upload.service";
+import compressVideo from "../utils/videoCompressor";
 
-/**
- * Creates a new ad graphic.
- * 
- * @param req - The Express request object, containing the ad graphic data.
- * @param res - The Express response object.
- */
-export async function createAdGraphicHandler(
-  req: Request<{}, {}, CreateAdGraphicInput[]>,
-  res: Response
-) {
+const cloudinaryService = new CloudinaryService();
+
+export async function createAdGraphicHandler(req: Request, res: Response): Promise<Response> {
   try {
-    const userId = res.locals.user._id;
-
-    // Handle file upload details
-    const fileData = req.file;
-    if (!fileData) {
-      return res.status(400).send("File upload failed");
+    if (!req?.file?.path) {
+      return res.status(400).send('No file provided or file path is missing');
     }
 
+    let filePath = req.file.path;
+
+    // Check if the file is a video
+    if (req.file.mimetype.startsWith('video/')) {
+      // Compress the video
+      filePath = await compressVideo(filePath);
+    }
+
+    // Upload the (possibly compressed) file to Cloudinary
+    const fileUploadResult = await cloudinaryService.uploadFile(filePath);
+
+    // Extract user ID from authenticated user
+    const userId = res.locals.user._id;
+
+    // Create the ad graphic record in the database
     const adGraphic = await createAdGraphic({
       user: userId,
-      fileName: fileData.filename,
-      fileType: fileData.mimetype,
-      fileSize: fileData.size,
-      fileUrl: fileData.path,
-      uploadDate: new Date(), // This is automatically set, can be omitted if using default
+      fileName: fileUploadResult.public_id,
+      fileType: req.file.mimetype || '',
+      fileSize: req.file.size || 0,
+      fileUrl: fileUploadResult.secure_url,
+      uploadDate: new Date(),
     });
 
-    return res.send(adGraphic);
-  } catch (e: any) {
-    console.error(e);
-    return res.status(500).send(e.message);
+    return res.status(201).json(adGraphic);
+  } catch (error: unknown) {
+    let errorMessage = 'Internal Server Error';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    console.error('Error in createAdGraphicHandler:', errorMessage);
+    return res.status(500).send(errorMessage);
   }
 }
 
