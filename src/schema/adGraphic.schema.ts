@@ -1,4 +1,4 @@
-import { object, string, TypeOf, number } from "zod";
+import { object, string, TypeOf, number, date } from "zod";
 
 /**
  * @openapi
@@ -7,12 +7,31 @@ import { object, string, TypeOf, number } from "zod";
  *    CreateAdGraphicInput:
  *      type: object
  *      required:
- *        - file
+ *        - fileName
+ *        - fileType
+ *        - fileSize
+ *        - fileUrl
+ *        - adId
+ *        - userId
  *      properties:
- *        file:
+ *        fileName:
  *          type: string
- *          format: binary
- *          description: The image or video file to be uploaded.
+ *          description: The name of the file.
+ *        fileType:
+ *          type: string
+ *          description: The type of the file, such as image/jpeg or video/mp4.
+ *        fileSize:
+ *          type: integer
+ *          description: The size of the file in bytes.
+ *        fileUrl:
+ *          type: string
+ *          description: The URL where the file is accessible.
+ *        adId:
+ *          type: string
+ *          description: The ID of the associated ad.
+ *        userId:
+ *          type: string
+ *          description: The ID of the user who uploaded the file.
  *    CreateAdGraphicResponse:
  *      type: object
  *      properties:
@@ -26,12 +45,19 @@ import { object, string, TypeOf, number } from "zod";
  *          type: string
  *        _id:
  *          type: string
- *        user:
+ *        userId:
  *          type: string
+ *        adId:
+ *          type: string
+ *        uploadDate:
+ *          type: string
+ *          format: date-time
  *        createdAt:
  *          type: string
+ *          format: date-time
  *        updatedAt:
  *          type: string
+ *          format: date-time
  *    UpdateAdGraphicInput:
  *      type: object
  *      properties:
@@ -56,7 +82,26 @@ import { object, string, TypeOf, number } from "zod";
  */
 
 export const createAdGraphicSchema = object({
-  // No body fields are validated here since only a file is expected
+  body: object({
+    fileName: string({
+      required_error: "File name is required",
+    }),
+    fileType: string({
+      required_error: "File type is required",
+    }),
+    fileSize: number({
+      required_error: "File size is required",
+    }),
+    fileUrl: string({
+      required_error: "File URL is required",
+    }).url("Invalid URL format"),
+    adId: string({
+      required_error: "Ad ID is required",
+    }),
+    userId: string({
+      required_error: "User ID is required",
+    }),
+  }),
 });
 
 export type CreateAdGraphicInput = TypeOf<typeof createAdGraphicSchema>;

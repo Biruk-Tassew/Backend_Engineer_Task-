@@ -33,7 +33,8 @@ export async function createAdGraphicHandler(req: Request, res: Response): Promi
 
     // Create the ad graphic record in the database
     const adGraphic = await createAdGraphic({
-      user: userId,
+      userId: userId,
+      adId: req.body.adId,
       fileName: fileUploadResult.public_id,
       fileType: req.file.mimetype || '',
       fileSize: req.file.size || 0,
@@ -73,7 +74,7 @@ export async function updateAdGraphicHandler(
       return res.sendStatus(404);
     }
 
-    if (String(adGraphic.user) !== userId) {
+    if (String(adGraphic.userId) !== userId) {
       return res.sendStatus(403);
     }
 
@@ -133,7 +134,7 @@ export async function deleteAdGraphicHandler(
       return res.sendStatus(404);
     }
 
-    if (String(adGraphic.user) !== userId) {
+    if (String(adGraphic.userId) !== userId) {
       return res.sendStatus(403);
     }
 

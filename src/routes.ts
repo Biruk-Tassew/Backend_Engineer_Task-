@@ -26,6 +26,9 @@ import { createAdGraphicSchema, updateAdGraphicSchema } from "./schema/adGraphic
 import { validateFilePresence } from "./middleware/validateFilePresence";
 import UploadService from "./service/upload.service";
 import upload from "./middleware/upload.middleware";
+import { createAdHandler, deleteAdHandler, getAdHandler, updateAdHandler } from "./controller/ad.controller";
+import { createAdAttributeHandler, deleteAdAttributeHandler, getAdAttributeHandler, updateAdAttributeHandler } from "./controller/adAttributes.controller";
+import authorize from "./middleware/authorization.middleware";
 
 function routes(app: Express) {
   /**
@@ -64,7 +67,7 @@ function routes(app: Express) {
    */
    app.post(
     "/api/ad-graphics",
-    [requireUser , upload.single('file'), validateResource(createAdGraphicSchema)],
+    [requireUser, authorize("AdGraphics", "create"), upload.single('file'), validateResource(createAdGraphicSchema)],
     createAdGraphicHandler
   );
 
@@ -92,6 +95,7 @@ function routes(app: Express) {
    */
   app.get(
     "/api/ad-graphics/:id",
+    [requireUser, authorize("User", "read")],
     validateResource(createAdGraphicSchema),
     getAdGraphicHandler
   );
@@ -126,7 +130,7 @@ function routes(app: Express) {
    */
   app.put(
     "/api/ad-graphics/:id",
-    [requireUser, upload.single('file'), validateResource(updateAdGraphicSchema)],
+    [requireUser, authorize("User", "update"), upload.single('file'), validateResource(updateAdGraphicSchema)],
     updateAdGraphicHandler
   );
 
@@ -150,7 +154,7 @@ function routes(app: Express) {
    */
   app.delete(
     "/api/ad-graphics/:id",
-    [requireUser, validateResource(createAdGraphicSchema)],
+    [requireUser, authorize("User", "delete"), validateResource(createAdGraphicSchema)],
     deleteAdGraphicHandler
   );
 
@@ -232,130 +236,240 @@ function routes(app: Express) {
     validateResource(createSessionSchema),
     createUserSessionHandler
   );
-
+  
   app.get("/api/sessions", requireUser, getUserSessionsHandler);
 
   app.delete("/api/sessions", requireUser, deleteSessionHandler);
 
   /**
    * @openapi
-   * '/api/products':
-   *  post:
-   *     tags:
-   *     - Products
-   *     summary: Create a new product
+   * /api/ads:
+   *   post:
+   *     summary: Create a new ad
+   *     tags: [Ads]
+   *     security:
+   *       - bearerAuth: []
    *     requestBody:
    *       required: true
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/components/schema/Product'
+   *             $ref: '#/components/schemas/CreateAdInput'
    *     responses:
-   *       200:
-   *         description: Product created
+   *       201:
+   *         description: Ad created successfully
    *         content:
-   *          application/json:
-   *           schema:
-   *              $ref: '#/components/schema/productResponse'
-   *           example:
-   *             "user": "642a0de05f16e6dad68efdad"
-   *             "title": "Canon EOS 1500D DSLR Camera with 18-55mm Lens"
-   *             "description": "Designed for first-time DSLR owners who want impressive results straight out of the box, capture those magic moments no matter your level with the EOS 1500D. With easy to use automatic shooting modes, large 24.1 MP sensor, Canon Camera Connect app integration and built-in feature guide, EOS 1500D is always ready to go."
-   *             "price": 879.99
-   *             "image": "https://i.imgur.com/QlRphfQ.jpg"
-   *             "_id": "642a1cfcc1bec76d8a2e7ac2"
-   *             "productId": "product_xxqm8z3eho"
-   *             "createdAt": "2023-04-03T00:25:32.189Z"
-   *             "updatedAt": "2023-04-03T00:25:32.189Z"
-   *             "__v": 0
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Ad'
+   *       500:
+   *         description: Internal server error
    */
-  app.post(
-    "/api/products",
-    [requireUser, validateResource(createProductSchema)],
-    createProductHandler
-  );
+  app.post("/api/ads", [requireUser, authorize("Ad", "create")], createAdHandler);
 
   /**
    * @openapi
-   * '/api/products/{productId}':
-   *  get:
-   *     tags:
-   *     - Products
-   *     summary: Get a single product by the productId
+   * /api/ads/{id}:
+   *   put:
+   *     summary: Update an existing ad
+   *     tags: [Ads]
+   *     security:
+   *       - bearerAuth: []
    *     parameters:
-   *      - name: productId
-   *        in: path
-   *        description: The id of the product
-   *        required: true
-   *     responses:
-   *       200:
-   *         description: Success
-   *         content:
-   *          application/json:
-   *           schema:
-   *              $ref: '#/components/schema/productResponse'
-   *       404:
-   *         description: Product not found
-   *  put:
-   *     tags:
-   *     - Products
-   *     summary: Update a single product
-   *     parameters:
-   *      - name: productId
-   *        in: path
-   *        description: The id of the product
-   *        required: true
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         description: Ad ID
+   *         schema:
+   *           type: string
    *     requestBody:
    *       required: true
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/components/schema/Product'
+   *             $ref: '#/components/schemas/UpdateAdInput'
    *     responses:
    *       200:
-   *         description: Success
+   *         description: Ad updated successfully
    *         content:
-   *          application/json:
-   *           schema:
-   *              $ref: '#/components/schema/productResponse'
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Ad'
    *       403:
-   *         description: Forbidden
+   *         description: Forbidden - User not authorized to update this ad
    *       404:
-   *         description: Product not found
-   *  delete:
-   *     tags:
-   *     - Products
-   *     summary: Delete a single product
+   *         description: Ad not found
+   *       500:
+   *         description: Internal server error
+   */
+  app.put("/api/ads/:id", [requireUser, authorize("Ad", "update")], updateAdHandler);
+
+  /**
+   * @openapi
+   * /api/ads/{id}:
+   *   get:
+   *     summary: Get a specific ad by ID
+   *     tags: [Ads]
    *     parameters:
-   *      - name: productId
-   *        in: path
-   *        description: The id of the product
-   *        required: true
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         description: Ad ID
+   *         schema:
+   *           type: string
    *     responses:
    *       200:
-   *         description: Product deleted
-   *       403:
-   *         description: Forbidden
+   *         description: Ad details
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Ad'
    *       404:
-   *         description: Product not found
+   *         description: Ad not found
+   *       500:
+   *         description: Internal server error
    */
-  app.put(
-    "/api/products/:productId",
-    [requireUser, validateResource(updateProductSchema)],
-    updateProductHandler
-  );
+  app.get("/api/ads/:id", getAdHandler);
 
-  app.get(
-    "/api/products/:productId",
-    validateResource(getProductSchema),
-    getProductHandler
-  );
+  /**
+   * @openapi
+   * /api/ads/{id}:
+   *   delete:
+   *     summary: Delete a specific ad by ID
+   *     tags: [Ads]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         description: Ad ID
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Ad deleted successfully
+   *       403:
+   *         description: Forbidden - User not authorized to delete this ad
+   *       404:
+   *         description: Ad not found
+   *       500:
+   *         description: Internal server error
+   */
+  app.delete("/api/ads/:id", [requireUser, authorize("Ad", "delete")], deleteAdHandler);
 
-  app.delete(
-    "/api/products/:productId",
-    [requireUser, validateResource(deleteProductSchema)],
-    deleteProductHandler
-  );
+  /**
+   * @openapi
+   * /api/ad-attributes:
+   *   post:
+   *     summary: Create a new ad attribute
+   *     tags: [Ad Attributes]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/CreateAdAttributeInput'
+   *     responses:
+   *       201:
+   *         description: Ad attribute created successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/AdAttribute'
+   *       500:
+   *         description: Internal server error
+   */
+  app.post("/api/ad-attributes", [requireUser, authorize("AdAttribute", "create")], createAdAttributeHandler);
+
+  /**
+   * @openapi
+   * /api/ad-attributes/{id}:
+   *   put:
+   *     summary: Update an existing ad attribute
+   *     tags: [Ad Attributes]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         description: Ad attribute ID
+   *         schema:
+   *           type: string
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/UpdateAdAttributeInput'
+   *     responses:
+   *       200:
+   *         description: Ad attribute updated successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/AdAttribute'
+   *       404:
+   *         description: Ad attribute not found
+   *       500:
+   *         description: Internal server error
+   */
+  app.put("/api/ad-attributes/:id", [requireUser, authorize("AdAttribute", "update")], updateAdAttributeHandler);
+
+  /**
+   * @openapi
+   * /api/ad-attributes/{id}:
+   *   get:
+   *     summary: Get a specific ad attribute by ID
+   *     tags: [Ad Attributes]
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         description: Ad attribute ID
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Ad attribute details
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/AdAttribute'
+   *       404:
+   *         description: Ad attribute not found
+   *       500:
+   *         description: Internal server error
+   */
+  app.get("/api/ad-attributes/:id", getAdAttributeHandler);
+
+  /**
+   * @openapi
+   * /api/ad-attributes/{id}:
+   *   delete:
+   *     summary: Delete a specific ad attribute by ID
+   *     tags: [Ad Attributes]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         description: Ad attribute ID
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Ad attribute deleted successfully
+   *       404:
+   *         description: Ad attribute not found
+   *       500:
+   *         description: Internal server error
+   */
+  app.delete("/api/ad-attributes/:id", [requireUser, authorize("AdAttribute", "delete")], deleteAdAttributeHandler);
 }
 
 export default routes;

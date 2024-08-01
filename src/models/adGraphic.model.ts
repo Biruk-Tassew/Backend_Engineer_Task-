@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 
 export interface AdGraphicInput {
-  user: string
+  userId: string;
+  adId: string;
   fileName: string;
   fileType: string; 
   fileSize: number; 
@@ -21,6 +22,8 @@ const adGraphicSchema = new mongoose.Schema(
     fileSize: { type: Number, required: true },
     uploadDate: { type: Date, required: true, default: Date.now },
     fileUrl: { type: String, required: true },
+    adId: { type: String, required: true },
+    userId: { type: String, required: true },
   },
   {
     timestamps: true,
