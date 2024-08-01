@@ -24,10 +24,9 @@ import { createUserSchema } from "./schema/user.schema";
 import { createAdGraphicHandler, deleteAdGraphicHandler, getAdGraphicHandler, updateAdGraphicHandler } from "./controller/adGraphic.controller";
 import { createAdGraphicSchema, updateAdGraphicSchema } from "./schema/adGraphic.schema";
 import { validateFilePresence } from "./middleware/validateFilePresence";
-import UploadService from "./service/upload.service";
 import upload from "./middleware/upload.middleware";
-import { createAdHandler, deleteAdHandler, getAdHandler, updateAdHandler } from "./controller/ad.controller";
-import { createAdAttributeHandler, deleteAdAttributeHandler, getAdAttributeHandler, updateAdAttributeHandler } from "./controller/adAttributes.controller";
+import { createAdHandler, deleteAdHandler, getAdHandler, getAllAdsHandler, updateAdHandler } from "./controller/ad.controller";
+import { createAdAttributeHandler, deleteAdAttributeHandler, getAdAttributeByAdHandler, getAdAttributeHandler, updateAdAttributeHandler } from "./controller/adAttributes.controller";
 import authorize from "./middleware/authorization.middleware";
 
 function routes(app: Express) {
@@ -44,28 +43,28 @@ function routes(app: Express) {
    */
   app.get("/healthcheck", (req: Request, res: Response) => res.sendStatus(200));
 
-   /**
-   * @openapi
-   * '/api/ad-graphics':
-   *  post:
-   *     tags:
-   *     - AdGraphic
-   *     summary: Upload new ad graphics (images or videos)
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         multipart/form-data:
-   *           schema:
-   *             $ref: '#/components/schemas/CreateAdGraphicInput'
-   *     responses:
-   *       200:
-   *         description: Ad graphics uploaded successfully
-   *         content:
-   *          application/json:
-   *           schema:
-   *              $ref: '#/components/schemas/AdGraphicSchema'
-   */
-   app.post(
+  /**
+  * @openapi
+  * '/api/ad-graphics':
+  *  post:
+  *     tags:
+  *     - AdGraphic
+  *     summary: Upload new ad graphics (images or videos)
+  *     requestBody:
+  *       required: true
+  *       content:
+  *         multipart/form-data:
+  *           schema:
+  *             $ref: '#/components/schemas/CreateAdGraphicInput'
+  *     responses:
+  *       200:
+  *         description: Ad graphics uploaded successfully
+  *         content:
+  *          application/json:
+  *           schema:
+  *              $ref: '#/components/schemas/AdGraphicSchema'
+  */
+  app.post(
     "/api/ad-graphics",
     [requireUser, authorize("AdGraphics", "create"), upload.single('file'), validateResource(createAdGraphicSchema)],
     createAdGraphicHandler
@@ -236,7 +235,7 @@ function routes(app: Express) {
     validateResource(createSessionSchema),
     createUserSessionHandler
   );
-  
+
   app.get("/api/sessions", requireUser, getUserSessionsHandler);
 
   app.delete("/api/sessions", requireUser, deleteSessionHandler);
@@ -303,6 +302,27 @@ function routes(app: Express) {
    *         description: Internal server error
    */
   app.put("/api/ads/:id", [requireUser, authorize("Ad", "update")], updateAdHandler);
+
+  /**
+  * @openapi
+  * /ads:
+  *   get:
+  *     summary: Get all ads
+  *     tags: [Ads]
+  *     description: Retrieve a list of all ads
+  *     responses:
+  *       200:
+  *         description: A list of ads
+  *         content:
+  *           application/json:
+  *             schema:
+  *               type: array
+  *               items:
+  *                 $ref: '#/components/schemas/Ad'
+  *       500:
+  *         description: Internal server error
+  */
+  app.get("/ads", getAllAdsHandler);
 
   /**
    * @openapi
@@ -445,6 +465,35 @@ function routes(app: Express) {
    *         description: Internal server error
    */
   app.get("/api/ad-attributes/:id", getAdAttributeHandler);
+
+  /**
+ * @openapi
+ * /api/ad-attributes/by-ad/{adId}:
+ *   get:
+ *     summary: Get ad attributes by ad ID
+ *     tags: [Ad Attributes]
+ *     parameters:
+ *       - name: adId
+ *         in: path
+ *         required: true
+ *         description: Ad ID to retrieve attributes for
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of ad attributes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/AdAttribute'
+ *       404:
+ *         description: No ad attributes found for the given ad ID
+ *       500:
+ *         description: Internal server error
+ */
+  app.get("/api/ad-attributes/by-ad/:id", getAdAttributeByAdHandler);
 
   /**
    * @openapi

@@ -18,24 +18,20 @@ export async function createAdGraphicHandler(req: Request, res: Response): Promi
     }
 
     let filePath = req.file.path;
+    const videoCompressionLevel = Number(req.body.videoCompressionLevel) || 0;
 
-    // Check if the file is a video
     if (req.file.mimetype.startsWith('video/')) {
-      // Compress the video
-      filePath = await compressVideo(filePath);
+      filePath = await compressVideo(filePath, videoCompressionLevel);
     }
 
-    // Upload the (possibly compressed) file to Cloudinary
     const fileUploadResult = await cloudinaryService.uploadFile(filePath);
 
-    // Extract user ID from authenticated user
     const userId = res.locals.user._id;
 
-    // Create the ad graphic record in the database
     const adGraphic = await createAdGraphic({
       userId: userId,
       adId: req.body.adId,
-      fileName: fileUploadResult.public_id,
+      fileName: req.body.fileName || fileUploadResult.public_id,
       fileType: req.file.mimetype || '',
       fileSize: req.file.size || 0,
       fileUrl: fileUploadResult.secure_url,

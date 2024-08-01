@@ -5,6 +5,7 @@ import {
   deleteAdAttribute,
   findAndUpdateAdAttribute,
   findAdAttribute,
+  findAdAttributesByAdId,
 } from "../service/adAttribute.service";
 
 export async function createAdAttributeHandler(req: Request<{}, {}, CreateAdAttributeInput["body"]>, res: Response): Promise<Response> {
@@ -52,6 +53,25 @@ export async function getAdAttributeHandler(
   try {
     const adAttributeId = req.params.id;
     const adAttribute = await findAdAttribute({ _id: adAttributeId });
+
+    if (!adAttribute) {
+      return res.sendStatus(404);
+    }
+
+    return res.send(adAttribute);
+  } catch (error: unknown) {
+    console.error(error);
+    return res.status(500).send(error);
+  }
+}
+
+export async function getAdAttributeByAdHandler(
+  req: Request<UpdateAdAttributeInput["params"]>,
+  res: Response
+): Promise<Response> {
+  try {
+    const adId = req.params.id;
+    const adAttribute = await findAdAttributesByAdId( adId );
 
     if (!adAttribute) {
       return res.sendStatus(404);

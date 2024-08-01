@@ -1,4 +1,4 @@
-import { object, string, TypeOf, number, date } from "zod";
+import { object, string, TypeOf, number } from "zod";
 
 /**
  * @openapi
@@ -8,77 +8,44 @@ import { object, string, TypeOf, number, date } from "zod";
  *      type: object
  *      required:
  *        - fileName
- *        - fileType
- *        - fileSize
- *        - fileUrl
+ *        - file
  *        - adId
- *        - userId
  *      properties:
+ *        file:
+ *          type: string
+ *          format: binary
+ *          description: The image or video file to be uploaded.
  *        fileName:
  *          type: string
  *          description: The name of the file.
- *        fileType:
- *          type: string
- *          description: The type of the file, such as image/jpeg or video/mp4.
- *        fileSize:
- *          type: integer
- *          description: The size of the file in bytes.
- *        fileUrl:
- *          type: string
- *          description: The URL where the file is accessible.
  *        adId:
  *          type: string
  *          description: The ID of the associated ad.
- *        userId:
- *          type: string
- *          description: The ID of the user who uploaded the file.
+ *        videoCompressionLevel:
+ *          type: number
+ *          description: The compression level for the video in percentage (optional).
  *    CreateAdGraphicResponse:
  *      type: object
  *      properties:
+ *        file:
+ *          type: string
+ *          format: binary
+ *          description: The image or video file to be uploaded.
  *        fileName:
- *          type: string
- *        fileType:
- *          type: string
- *        fileSize:
- *          type: integer
- *        fileUrl:
  *          type: string
  *        _id:
  *          type: string
- *        userId:
- *          type: string
  *        adId:
  *          type: string
- *        uploadDate:
- *          type: string
- *          format: date-time
- *        createdAt:
- *          type: string
- *          format: date-time
- *        updatedAt:
- *          type: string
- *          format: date-time
  *    UpdateAdGraphicInput:
  *      type: object
  *      properties:
  *        fileName:
  *          type: string
  *          default: example.jpg
- *        fileType:
+ *        adId:
  *          type: string
- *          default: image/jpeg
- *        fileSize:
- *          type: integer
- *          default: 102400
- *        fileUrl:
- *          type: string
- *          default: http://example.com/example.jpg
- *        uploadDate:
- *          type: string
- *          format: date-time
- *        id:
- *          type: string
- *          required: true
+ *          description: The ID of the associated ad.
  */
 
 export const createAdGraphicSchema = object({
@@ -86,21 +53,17 @@ export const createAdGraphicSchema = object({
     fileName: string({
       required_error: "File name is required",
     }),
-    fileType: string({
-      required_error: "File type is required",
-    }),
-    fileSize: number({
-      required_error: "File size is required",
-    }),
-    fileUrl: string({
-      required_error: "File URL is required",
-    }).url("Invalid URL format"),
     adId: string({
       required_error: "Ad ID is required",
     }),
-    userId: string({
-      required_error: "User ID is required",
-    }),
+    videoCompressionLevel: string()
+      .optional()
+      .transform((val) => (val ? parseInt(val, 10) : undefined))
+      .pipe(
+        number()
+          .min(0, "Compression level must be at least 0%")
+          .max(100, "Compression level cannot exceed 100%")
+      ),
   }),
 });
 
@@ -108,11 +71,12 @@ export type CreateAdGraphicInput = TypeOf<typeof createAdGraphicSchema>;
 
 export const updateAdGraphicSchema = object({
   body: object({
-    fileName: string().optional(),
-    fileType: string().regex(/^.+\/.+$/, "Invalid file type format").optional(),
-    fileSize: number().int("File size must be an integer").optional(),
-    fileUrl: string().url("Invalid URL format").optional(),
-    uploadDate: string().datetime({ offset: true }).optional(),
+    fileName: string({
+      required_error: "File name is required",
+    }),
+    adId: string({
+      required_error: "Ad ID is required",
+    }),
   }),
   params: object({
     id: string({

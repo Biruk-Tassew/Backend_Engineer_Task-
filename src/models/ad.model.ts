@@ -13,7 +13,8 @@ export interface AdQuery {
 export interface AdDocument extends AdInput, mongoose.Document {
   createdAt: Date;
   updatedAt: Date;
-  attributes: mongoose.Types.ObjectId[];  // References to AdAttributes
+  attributes: mongoose.Types.ObjectId[];
+  graphics: mongoose.Types.ObjectId[];
 }
 
 const adSchema = new mongoose.Schema(
@@ -22,6 +23,7 @@ const adSchema = new mongoose.Schema(
     description: { type: String, required: true },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     attributes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'AdAttribute' }],
+    graphics: [{ type: mongoose.Schema.Types.ObjectId, ref: 'AdGraphic' }],
   },
   {
     timestamps: true,

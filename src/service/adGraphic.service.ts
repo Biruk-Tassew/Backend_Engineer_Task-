@@ -1,5 +1,6 @@
 import { FilterQuery, UpdateQuery, QueryOptions } from "mongoose";
 import AdGraphicModel, { AdGraphicDocument, AdGraphicInput } from "../models/adGraphic.model";
+import AdModel from "../models/ad.model";
 
 /**
  * Creates a new ad graphic record in the database.
@@ -10,6 +11,11 @@ import AdGraphicModel, { AdGraphicDocument, AdGraphicInput } from "../models/adG
 export async function createAdGraphic(input: AdGraphicInput) {
   try {
     const adGraphic = await AdGraphicModel.create(input);
+
+    await AdModel.findByIdAndUpdate(input.adId, {
+      $push: { graphics: adGraphic._id }
+    });
+    
     return adGraphic.toJSON();
   } catch (e: any) {
     throw new Error(e.message);

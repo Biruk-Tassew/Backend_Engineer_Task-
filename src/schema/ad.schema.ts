@@ -9,7 +9,6 @@ import { object, string, TypeOf } from "zod";
  *      required:
  *        - title
  *        - description
- *        - user
  *      properties:
  *        title:
  *          type: string
@@ -17,9 +16,6 @@ import { object, string, TypeOf } from "zod";
  *        description:
  *          type: string
  *          description: The description of the ad.
- *        user:
- *          type: string
- *          description: The ID of the user who created the ad.
  *    CreateAdResponse:
  *      type: object
  *      properties:

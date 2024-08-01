@@ -5,6 +5,7 @@ import {
   deleteAd,
   findAndUpdateAd,
   findAd,
+  findAllAds,
 } from "../service/ad.service";
 
 // Handler to create a new ad
@@ -72,6 +73,25 @@ export async function getAdHandler(
   try {
     const id = req.params.id;
     const ad = await findAd({ _id: id });
+
+    if (!ad) {
+      return res.sendStatus(404);
+    }
+
+    return res.send(ad);
+  } catch (error: unknown) {
+    console.error(error);
+    return res.status(500).send(error);
+  }
+}
+
+// Handler to get all ad
+export async function getAllAdsHandler(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  try {
+    const ad = await findAllAds({});
 
     if (!ad) {
       return res.sendStatus(404);

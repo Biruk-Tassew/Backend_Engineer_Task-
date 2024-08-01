@@ -38,6 +38,9 @@ import { object, string, TypeOf } from "zod";
  *    UpdateAdAttributeInput:
  *      type: object
  *      properties:
+ *        adId:
+ *          type: string
+ *          description: The ID of the associated ad.
  *        key:
  *          type: string
  *          description: The attribute key (e.g., gender, location).
@@ -64,8 +67,15 @@ export type CreateAdAttributeInput = TypeOf<typeof createAdAttributeSchema>;
 
 export const updateAdAttributeSchema = object({
   body: object({
-    key: string().optional(),
-    value: string().optional(),
+    adId: string({
+      required_error: "Ad ID is required",
+    }),
+    key: string({
+      required_error: "Key is required",
+    }),
+    value: string({
+      required_error: "Value is required",
+    }),
   }),
   params: object({
     id: string({
