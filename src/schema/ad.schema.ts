@@ -19,27 +19,96 @@ import { object, string, TypeOf } from "zod";
  *    CreateAdResponse:
  *      type: object
  *      properties:
+ *        success:
+ *          type: boolean
+ *          description: Indicates whether the request was successful.
+ *        message:
+ *          type: string
+ *          description: Provides information about the request.
+ *        data:
+ *          type: object
+ *          properties:
+ *            title:
+ *              type: string
+ *            description:
+ *              type: string
+ *            user:
+ *              type: string
+ *            attributes:
+ *              type: array
+ *              items:
+ *                type: object
+ *                properties:
+ *                  key:
+ *                    type: string
+ *                  value:
+ *                    type: string
+ *            _id:
+ *              type: string
+ *            createdAt:
+ *              type: string
+ *            updatedAt:
+ *              type: string
+ *        error:
+ *          type: object
+ *          nullable: true
+ *          properties:
+ *            message:
+ *              type: string
+ *            stack:
+ *              type: string
+ *              nullable: true
+ *    UpdateAdInput:
+ *      type: object
+ *      properties:
  *        title:
  *          type: string
+ *          description: The title of the ad.
  *        description:
  *          type: string
- *        user:
+ *          description: The description of the ad.
+ *    UpdateAdResponse:
+ *      type: object
+ *      properties:
+ *        success:
+ *          type: boolean
+ *          description: Indicates whether the request was successful.
+ *        message:
  *          type: string
- *        attributes:
- *          type: array
- *          items:
- *            type: object
- *            properties:
- *              key:
- *                type: string
- *              value:
- *                type: string
- *        _id:
- *          type: string
- *        createdAt:
- *          type: string
- *        updatedAt:
- *          type: string
+ *          description: Provides information about the request.
+ *        data:
+ *          type: object
+ *          properties:
+ *            title:
+ *              type: string
+ *            description:
+ *              type: string
+ *            user:
+ *              type: string
+ *            attributes:
+ *              type: array
+ *              items:
+ *                type: object
+ *                properties:
+ *                  key:
+ *                    type: string
+ *                  value:
+ *                    type: string
+ *            _id:
+ *              type: string
+ *            createdAt:
+ *              type: string
+ *            updatedAt:
+ *              type: string
+ *        error:
+ *          type: object
+ *          nullable: true
+ *          properties:
+ *            message:
+ *              type: string
+ *            stack:
+ *              type: string
+ *              nullable: true
  */
 
 export const createAdSchema = object({
@@ -58,21 +127,6 @@ export const createAdSchema = object({
 
 export type CreateAdInput = TypeOf<typeof createAdSchema>;
 
-/**
- * @openapi
- * components:
- *  schemas:
- *    UpdateAdInput:
- *      type: object
- *      properties:
- *        title:
- *          type: string
- *          description: The title of the ad.
- *        description:
- *          type: string
- *          description: The description of the ad.
- */
-
 export const updateAdSchema = object({
   body: object({
     title: string().optional(),
@@ -85,7 +139,7 @@ export const updateAdSchema = object({
   }),
 });
 
-export type UpdateAdInput = TypeOf<typeof updateAdSchema> ;
+export type UpdateAdInput = TypeOf<typeof updateAdSchema>;
 
 export const adSchema = object({
   body: object({

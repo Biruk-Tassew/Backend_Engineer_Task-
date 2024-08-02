@@ -7,19 +7,19 @@ import {
   findAdAttribute,
   findAdAttributesByAdId,
 } from "../service/adAttribute.service";
+import { createResponse } from "../utils/response"; 
 
 export async function createAdAttributeHandler(req: Request<{}, {}, CreateAdAttributeInput["body"]>, res: Response): Promise<Response> {
   try {
-    const adAttribute = await createAdAttribute( req.body );
-
-    return res.status(201).json(adAttribute);
+    const adAttribute = await createAdAttribute(req.body);
+    return res.status(201).json(createResponse(true, "Ad attribute created successfully", adAttribute));
   } catch (error: unknown) {
-    let errorMessage = 'Internal Server Error';
+    let errorMessage = "Internal Server Error";
     if (error instanceof Error) {
       errorMessage = error.message;
     }
-    console.error('Error in createAdAttributeHandler:', errorMessage);
-    return res.status(500).send(errorMessage);
+    console.error("Error in createAdAttributeHandler:", errorMessage);
+    return res.status(500).json(createResponse(false, errorMessage, null, error));
   }
 }
 
@@ -34,15 +34,14 @@ export async function updateAdAttributeHandler(
     const adAttribute = await findAdAttribute({ _id: adAttributeId });
 
     if (!adAttribute) {
-      return res.sendStatus(404);
+      return res.status(404).json(createResponse(false, "Ad attribute not found", null));
     }
 
     const updatedAdAttribute = await findAndUpdateAdAttribute({ _id: adAttributeId }, update, { new: true });
-
-    return res.send(updatedAdAttribute);
+    return res.json(createResponse(true, "Ad attribute updated successfully", updatedAdAttribute));
   } catch (error: unknown) {
     console.error(error);
-    return res.status(500).send(error);
+    return res.status(500).json(createResponse(false, "Internal Server Error", null, error));
   }
 }
 
@@ -55,13 +54,13 @@ export async function getAdAttributeHandler(
     const adAttribute = await findAdAttribute({ _id: adAttributeId });
 
     if (!adAttribute) {
-      return res.sendStatus(404);
+      return res.status(404).json(createResponse(false, "Ad attribute not found", null));
     }
 
-    return res.send(adAttribute);
+    return res.json(createResponse(true, "Ad attribute fetched successfully", adAttribute));
   } catch (error: unknown) {
     console.error(error);
-    return res.status(500).send(error);
+    return res.status(500).json(createResponse(false, "Internal Server Error", null, error));
   }
 }
 
@@ -71,16 +70,16 @@ export async function getAdAttributeByAdHandler(
 ): Promise<Response> {
   try {
     const adId = req.params.id;
-    const adAttribute = await findAdAttributesByAdId( adId );
+    const adAttribute = await findAdAttributesByAdId(adId);
 
     if (!adAttribute) {
-      return res.sendStatus(404);
+      return res.status(404).json(createResponse(false, "Ad attributes not found", null));
     }
 
-    return res.send(adAttribute);
+    return res.json(createResponse(true, "Ad attributes fetched successfully", adAttribute));
   } catch (error: unknown) {
     console.error(error);
-    return res.status(500).send(error);
+    return res.status(500).json(createResponse(false, "Internal Server Error", null, error));
   }
 }
 
@@ -94,14 +93,13 @@ export async function deleteAdAttributeHandler(
     const adAttribute = await findAdAttribute({ _id: adAttributeId });
 
     if (!adAttribute) {
-      return res.sendStatus(404);
+      return res.status(404).json(createResponse(false, "Ad attribute not found", null));
     }
 
     await deleteAdAttribute(adAttributeId);
-
-    return res.sendStatus(200);
+    return res.json(createResponse(true, "Ad attribute deleted successfully", null));
   } catch (error: unknown) {
     console.error(error);
-    return res.status(500).send(error);
+    return res.status(500).json(createResponse(false, "Internal Server Error", null, error));
   }
 }

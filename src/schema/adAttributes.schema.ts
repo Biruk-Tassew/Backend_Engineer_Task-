@@ -23,18 +23,36 @@ import { object, string, TypeOf } from "zod";
  *    CreateAdAttributeResponse:
  *      type: object
  *      properties:
- *        adId:
+ *        success:
+ *          type: boolean
+ *          description: Indicates whether the request was successful.
+ *        message:
  *          type: string
- *        key:
- *          type: string
- *        value:
- *          type: string
- *        _id:
- *          type: string
- *        createdAt:
- *          type: string
- *        updatedAt:
- *          type: string
+ *          description: Provides information about the request.
+ *        data:
+ *          type: object
+ *          properties:
+ *            adId:
+ *              type: string
+ *            key:
+ *              type: string
+ *            value:
+ *              type: string
+ *            _id:
+ *              type: string
+ *            createdAt:
+ *              type: string
+ *            updatedAt:
+ *              type: string
+ *        error:
+ *          type: object
+ *          nullable: true
+ *          properties:
+ *            message:
+ *              type: string
+ *            stack:
+ *              type: string
+ *              nullable: true
  *    UpdateAdAttributeInput:
  *      type: object
  *      properties:
@@ -47,6 +65,39 @@ import { object, string, TypeOf } from "zod";
  *        value:
  *          type: string
  *          description: The attribute value.
+ *    UpdateAdAttributeResponse:
+ *      type: object
+ *      properties:
+ *        success:
+ *          type: boolean
+ *          description: Indicates whether the request was successful.
+ *        message:
+ *          type: string
+ *          description: Provides information about the request.
+ *        data:
+ *          type: object
+ *          properties:
+ *            adId:
+ *              type: string
+ *            key:
+ *              type: string
+ *            value:
+ *              type: string
+ *            _id:
+ *              type: string
+ *            createdAt:
+ *              type: string
+ *            updatedAt:
+ *              type: string
+ *        error:
+ *          type: object
+ *          nullable: true
+ *          properties:
+ *            message:
+ *              type: string
+ *            stack:
+ *              type: string
+ *              nullable: true
  */
 
 export const createAdAttributeSchema = object({

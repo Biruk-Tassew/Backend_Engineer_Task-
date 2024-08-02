@@ -28,6 +28,7 @@ import upload from "./middleware/upload.middleware";
 import { createAdHandler, deleteAdHandler, getAdHandler, getAllAdsHandler, updateAdHandler } from "./controller/ad.controller";
 import { createAdAttributeHandler, deleteAdAttributeHandler, getAdAttributeByAdHandler, getAdAttributeHandler, updateAdAttributeHandler } from "./controller/adAttributes.controller";
 import authorize from "./middleware/authorization.middleware";
+import { checkEmailNotUsed } from "./middleware/userValidation.middleware";
 
 function routes(app: Express) {
   /**
@@ -183,7 +184,7 @@ function routes(app: Express) {
    *      400:
    *        description: Bad request
    */
-  app.post("/api/users", validateResource(createUserSchema), createUserHandler);
+  app.post("/api/users", [checkEmailNotUsed, validateResource(createUserSchema)], createUserHandler);
 
   /**
    * @openapi

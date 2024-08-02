@@ -3,45 +3,65 @@ import { object, string, enum as zEnum, TypeOf } from "zod";
 /**
  * @openapi
  * components:
- *  schemas:
- *    CreateUserInput:
- *      type: object
- *      required:
- *        - email
- *        - name
- *        - password
- *        - passwordConfirmation
- *        - role
- *      properties:
- *        email:
- *          type: string
- *          default: jane.doe@example.com
- *        name:
- *          type: string
- *          default: Jane Doe
- *        password:
- *          type: string
- *          default: stringPassword123
- *        passwordConfirmation:
- *          type: string
- *          default: stringPassword123
- *        role:
- *          type: string
- *          enum: [admin, advertiser, moderator, analytics, support]
- *          default: advertiser
- *    CreateUserResponse:
- *      type: object
- *      properties:
- *        email:
- *          type: string
- *        name:
- *          type: string
- *        _id:
- *          type: string
- *        createdAt:
- *          type: string
- *        updatedAt:
- *          type: string
+ *   schemas:
+ *     CreateUserInput:
+ *       type: object
+ *       required:
+ *         - email
+ *         - name
+ *         - password
+ *         - passwordConfirmation
+ *         - role
+ *       properties:
+ *         email:
+ *           type: string
+ *           default: jane.doe@example.com
+ *         name:
+ *           type: string
+ *           default: Jane Doe
+ *         password:
+ *           type: string
+ *           default: stringPassword123
+ *         passwordConfirmation:
+ *           type: string
+ *           default: stringPassword123
+ *         role:
+ *           type: string
+ *           enum: [admin, advertiser, moderator, analytics, support]
+ *           default: advertiser
+ *     CreateUserResponse:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           description: Indicates whether the request was successful.
+ *         message:
+ *           type: string
+ *           description: Provides information about the request.
+ *         data:
+ *           type: object
+ *           properties:
+ *             email:
+ *               type: string
+ *             name:
+ *               type: string
+ *             _id:
+ *               type: string
+ *             createdAt:
+ *               type: string
+ *               format: date-time
+ *             updatedAt:
+ *               type: string
+ *               format: date-time
+ *         error:
+ *           type: object
+ *           nullable: true
+ *           properties:
+ *             message:
+ *               type: string
+ *             stack:
+ *               type: string
+ *               nullable: true
  */
 
 export const createUserSchema = object({

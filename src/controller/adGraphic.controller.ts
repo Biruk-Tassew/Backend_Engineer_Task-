@@ -8,13 +8,14 @@ import {
 } from "../service/adGraphic.service";
 import CloudinaryService from "../service/upload.service";
 import compressVideo from "../utils/videoCompressor";
+import { createResponse } from "../utils/response"; 
 
 const cloudinaryService = new CloudinaryService();
 
 export async function createAdGraphicHandler(req: Request, res: Response): Promise<Response> {
   try {
     if (!req?.file?.path) {
-      return res.status(400).send('No file provided or file path is missing');
+      return res.status(400).json(createResponse(false, 'No file provided or file path is missing', null));
     }
 
     let filePath = req.file.path;
@@ -25,7 +26,6 @@ export async function createAdGraphicHandler(req: Request, res: Response): Promi
     }
 
     const fileUploadResult = await cloudinaryService.uploadFile(filePath);
-
     const userId = res.locals.user._id;
 
     const adGraphic = await createAdGraphic({
@@ -38,27 +38,21 @@ export async function createAdGraphicHandler(req: Request, res: Response): Promi
       uploadDate: new Date(),
     });
 
-    return res.status(201).json(adGraphic);
+    return res.status(201).json(createResponse(true, 'Ad graphic created successfully', adGraphic));
   } catch (error: unknown) {
     let errorMessage = 'Internal Server Error';
     if (error instanceof Error) {
       errorMessage = error.message;
     }
     console.error('Error in createAdGraphicHandler:', errorMessage);
-    return res.status(500).send(errorMessage);
+    return res.status(500).json(createResponse(false, errorMessage, null, error));
   }
 }
 
-/**
- * Updates an existing ad graphic.
- * 
- * @param req - The Express request object, containing the ad graphic ID and update data.
- * @param res - The Express response object.
- */
 export async function updateAdGraphicHandler(
   req: Request<UpdateAdGraphicInput["params"]>,
   res: Response
-) {
+): Promise<Response> {
   try {
     const userId = res.locals.user._id;
     const adGraphicId = req.params.id;
@@ -67,59 +61,47 @@ export async function updateAdGraphicHandler(
     const adGraphic = await findAdGraphic({ _id: adGraphicId });
 
     if (!adGraphic) {
-      return res.sendStatus(404);
+      return res.status(404).json(createResponse(false, 'Ad graphic not found', null));
     }
 
     if (String(adGraphic.userId) !== userId) {
-      return res.sendStatus(403);
+      return res.status(403).json(createResponse(false, 'Forbidden', null));
     }
 
     const updatedAdGraphic = await findAndUpdateAdGraphic({ _id: adGraphicId }, update, {
       new: true,
     });
 
-    return res.send(updatedAdGraphic);
-  } catch (e: any) {
-    console.error(e);
-    return res.status(500).send(e.message);
+    return res.json(createResponse(true, 'Ad graphic updated successfully', updatedAdGraphic));
+  } catch (error: unknown) {
+    console.error('Error in updateAdGraphicHandler:', error);
+    return res.status(500).json(createResponse(false, 'Internal Server Error', null, error));
   }
 }
 
-/**
- * Retrieves a specific ad graphic by ID.
- * 
- * @param req - The Express request object, containing the ad graphic ID.
- * @param res - The Express response object.
- */
 export async function getAdGraphicHandler(
   req: Request<UpdateAdGraphicInput["params"]>,
   res: Response
-) {
+): Promise<Response> {
   try {
     const adGraphicId = req.params.id;
     const adGraphic = await findAdGraphic({ _id: adGraphicId });
 
     if (!adGraphic) {
-      return res.sendStatus(404);
+      return res.status(404).json(createResponse(false, 'Ad graphic not found', null));
     }
 
-    return res.send(adGraphic);
-  } catch (e: any) {
-    console.error(e);
-    return res.status(500).send(e.message);
+    return res.json(createResponse(true, 'Ad graphic fetched successfully', adGraphic));
+  } catch (error: unknown) {
+    console.error('Error in getAdGraphicHandler:', error);
+    return res.status(500).json(createResponse(false, 'Internal Server Error', null, error));
   }
 }
 
-/**
- * Deletes a specific ad graphic by ID.
- * 
- * @param req - The Express request object, containing the ad graphic ID.
- * @param res - The Express response object.
- */
 export async function deleteAdGraphicHandler(
   req: Request<UpdateAdGraphicInput["params"]>,
   res: Response
-) {
+): Promise<Response> {
   try {
     const userId = res.locals.user._id;
     const adGraphicId = req.params.id;
@@ -127,18 +109,17 @@ export async function deleteAdGraphicHandler(
     const adGraphic = await findAdGraphic({ _id: adGraphicId });
 
     if (!adGraphic) {
-      return res.sendStatus(404);
+      return res.status(404).json(createResponse(false, 'Ad graphic not found', null));
     }
 
     if (String(adGraphic.userId) !== userId) {
-      return res.sendStatus(403);
+      return res.status(403).json(createResponse(false, 'Forbidden', null));
     }
 
-    await deleteAdGraphic( adGraphicId );
-
-    return res.sendStatus(200);
-  } catch (e: any) {
-    console.error(e);
-    return res.status(500).send(e.message);
+    await deleteAdGraphic(adGraphicId);
+    return res.json(createResponse(true, 'Ad graphic deleted successfully', null));
+  } catch (error: unknown) {
+    console.error('Error in deleteAdGraphicHandler:', error);
+    return res.status(500).json(createResponse(false, 'Internal Server Error', null, error));
   }
 }

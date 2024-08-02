@@ -1,34 +1,54 @@
-import { object, string } from "zod";
+import { object, string, TypeOf } from "zod";
 
 /**
  * @openapi
  * components:
  *   schemas:
  *     GetSessionResponse:
- *       type: array
- *       items:
- *         type: object
- *         required:
- *           - user
- *           - valid
- *           - userAgent
- *           - createdAt
- *           - updatedAt
- *         properties:
- *           _id:
- *             type: string
- *           user:
- *             type: string
- *           valid:
- *             type: boolean
- *           userAgent:
- *             type: string
- *           createdAt:
- *             type: string
- *           updatedAt:
- *             type: string
- *           __v:
- *             type: number
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           description: Indicates whether the request was successful.
+ *         message:
+ *           type: string
+ *           description: Provides information about the request.
+ *         data:
+ *           type: array
+ *           items:
+ *             type: object
+ *             required:
+ *               - user
+ *               - valid
+ *               - userAgent
+ *               - createdAt
+ *               - updatedAt
+ *             properties:
+ *               _id:
+ *                 type: string
+ *               user:
+ *                 type: string
+ *               valid:
+ *                 type: boolean
+ *               userAgent:
+ *                 type: string
+ *               createdAt:
+ *                 type: string
+ *                 format: date-time
+ *               updatedAt:
+ *                 type: string
+ *                 format: date-time
+ *               __v:
+ *                 type: number
+ *         error:
+ *           type: object
+ *           nullable: true
+ *           properties:
+ *             message:
+ *               type: string
+ *             stack:
+ *               type: string
+ *               nullable: true
  *     CreateSessionInput:
  *       type: object
  *       required:
@@ -43,14 +63,32 @@ import { object, string } from "zod";
  *           default: stringPassword123
  *     CreateSessionResponse:
  *       type: object
- *       required:
- *         - accessToken
- *         - refreshToken
  *       properties:
- *         accessToken:
+ *         success:
+ *           type: boolean
+ *           description: Indicates whether the request was successful.
+ *         message:
  *           type: string
- *         refreshToken:
- *           type: string
+ *           description: Provides information about the request.
+ *         data:
+ *           type: object
+ *           required:
+ *             - accessToken
+ *             - refreshToken
+ *           properties:
+ *             accessToken:
+ *               type: string
+ *             refreshToken:
+ *               type: string
+ *         error:
+ *           type: object
+ *           nullable: true
+ *           properties:
+ *             message:
+ *               type: string
+ *             stack:
+ *               type: string
+ *               nullable: true
  */
 
 export const createSessionSchema = object({
@@ -63,3 +101,5 @@ export const createSessionSchema = object({
     }),
   }),
 });
+
+export type CreateSessionInput = TypeOf<typeof createSessionSchema>;

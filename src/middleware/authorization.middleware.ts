@@ -3,6 +3,8 @@ import { UserRole } from "../models/user.model"; // Assuming your UserRole enum 
 import AdGraphicModel from "../models/adGraphic.model";
 import AdModel from "../models/ad.model";
 import AdAttributeModel from "../models/adAttributes.model";
+import { createResponse } from "../utils/response";
+
 
 type Permission = {
   resource: string;
@@ -40,12 +42,12 @@ function authorize(resource: string, action: string) {
       (perm) => perm.resource === `${resource}:${action}` || perm.resource === resource
     );
     if (!permission) {
-      return res.status(403).send("Access denied. No permission configuration found.");
+      return res.status(403).json(createResponse(false, "Access denied. No permission configuration found."));
     }
 
     // Check if the user's role is allowed
     if (!permission.roles.includes(userRole)) {
-      return res.status(403).send("Access denied. Role not authorized.");
+      return res.status(403).json(createResponse(false, "Access denied. Role not authorized."));
     }
 
     // If ownership check is required, verify the user owns the resource
@@ -53,13 +55,13 @@ function authorize(resource: string, action: string) {
       verifyOwnership(resource, resourceId, userId)
         .then((ownsResource) => {
           if (!ownsResource) {
-            return res.status(403).send("Access denied. Not the resource owner.");
+            return res.status(403).json(createResponse(false, "Access denied. Not the resource owner."));
           }
           next();
         })
         .catch((err) => {
           console.error("Error verifying ownership:", err);
-          return res.status(500).send("Internal server error.");
+          return res.status(500).json(createResponse(false, "Internal server error.", undefined, err));
         });
     } else {
       next();
