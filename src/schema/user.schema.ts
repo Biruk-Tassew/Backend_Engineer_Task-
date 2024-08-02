@@ -29,6 +29,12 @@ import { object, string, enum as zEnum, TypeOf } from "zod";
  *           type: string
  *           enum: [admin, advertiser, moderator, analytics, support]
  *           default: advertiser
+ *       example:
+ *         email: "jane.doe@example.com"
+ *         name: "Jane Doe"
+ *         password: "stringPassword123"
+ *         passwordConfirmation: "stringPassword123"
+ *         role: "advertiser"
  *     CreateUserResponse:
  *       type: object
  *       properties:
@@ -53,6 +59,12 @@ import { object, string, enum as zEnum, TypeOf } from "zod";
  *             updatedAt:
  *               type: string
  *               format: date-time
+ *           example:
+ *             email: "jane.doe@example.com"
+ *             name: "Jane Doe"
+ *             _id: "User ID Example"
+ *             createdAt: "2024-01-01T00:00:00.000Z"
+ *             updatedAt: "2024-01-01T00:00:00.000Z"
  *         error:
  *           type: object
  *           nullable: true
@@ -62,6 +74,32 @@ import { object, string, enum as zEnum, TypeOf } from "zod";
  *             stack:
  *               type: string
  *               nullable: true
+ *       examples:
+ *         201:
+ *           value:
+ *             success: true
+ *             message: "User created successfully"
+ *             data:
+ *               email: "jane.doe@example.com"
+ *               name: "Jane Doe"
+ *               _id: "User ID Example"
+ *               createdAt: "2024-01-01T00:00:00.000Z"
+ *               updatedAt: "2024-01-01T00:00:00.000Z"
+ *             error: null
+ *         400:
+ *           value:
+ *             success: false
+ *             message: "Invalid input"
+ *             error:
+ *               message: "Passwords do not match"
+ *               stack: null
+ *         500:
+ *           value:
+ *             success: false
+ *             message: "Internal server error"
+ *             error:
+ *               message: "An unexpected error occurred"
+ *               stack: "Error stack trace example"
  */
 
 export const createUserSchema = object({
@@ -73,7 +111,7 @@ export const createUserSchema = object({
       required_error: "Password is required",
     }).min(6, "Password too short - should be 6 chars minimum"),
     passwordConfirmation: string({
-      required_error: "passwordConfirmation is required",
+      required_error: "Password confirmation is required",
     }),
     email: string({
       required_error: "Email is required",

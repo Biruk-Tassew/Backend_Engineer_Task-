@@ -1,11 +1,5 @@
 import { Express, Request, Response } from "express";
 import {
-  createProductHandler,
-  getProductHandler,
-  updateProductHandler,
-  deleteProductHandler,
-} from "./controller/product.controller";
-import {
   createUserSessionHandler,
   getUserSessionsHandler,
   deleteSessionHandler,
@@ -13,12 +7,6 @@ import {
 import { createUserHandler } from "./controller/user.controller";
 import requireUser from "./middleware/requireUser";
 import validateResource from "./middleware/validateResource";
-import {
-  createProductSchema,
-  deleteProductSchema,
-  getProductSchema,
-  updateProductSchema,
-} from "./schema/product.schema";
 import { createSessionSchema } from "./schema/session.schema";
 import { createUserSchema } from "./schema/user.schema";
 import { createAdGraphicHandler, deleteAdGraphicHandler, getAdGraphicHandler, updateAdGraphicHandler } from "./controller/adGraphic.controller";
@@ -45,26 +33,32 @@ function routes(app: Express) {
   app.get("/healthcheck", (req: Request, res: Response) => res.sendStatus(200));
 
   /**
-  * @openapi
-  * '/api/ad-graphics':
-  *  post:
-  *     tags:
-  *     - AdGraphic
-  *     summary: Upload new ad graphics (images or videos)
-  *     requestBody:
-  *       required: true
-  *       content:
-  *         multipart/form-data:
-  *           schema:
-  *             $ref: '#/components/schemas/CreateAdGraphicInput'
-  *     responses:
-  *       200:
-  *         description: Ad graphics uploaded successfully
-  *         content:
-  *          application/json:
-  *           schema:
-  *              $ref: '#/components/schemas/AdGraphicSchema'
-  */
+   * @openapi
+   * /api/ad-graphics:
+   *  post:
+   *     tags:
+   *     - AdGraphic
+   *     summary: Upload new ad graphics (images or videos)
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         multipart/form-data:
+   *           schema:
+   *             $ref: '#/components/schemas/CreateAdGraphicInput'
+   *     responses:
+   *       200:
+   *         description: Ad graphics uploaded successfully
+   *         content:
+   *          application/json:
+   *           schema:
+   *              $ref: '#/components/schemas/AdGraphicSchema'
+   *       500:
+   *         description: Internal server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/AdActionFailureResponse'
+   */
   app.post(
     "/api/ad-graphics",
     [requireUser, authorize("AdGraphics", "create"), upload.single('file'), validateResource(createAdGraphicSchema)],
@@ -73,7 +67,7 @@ function routes(app: Express) {
 
   /**
    * @openapi
-   * '/api/ad-graphics/{id}':
+   * /api/ad-graphics/{id}:
    *  get:
    *     tags:
    *     - AdGraphic
@@ -92,6 +86,12 @@ function routes(app: Express) {
    *              $ref: '#/components/schemas/AdGraphicSchema'
    *       404:
    *         description: Ad graphics not found
+   *       500:
+   *         description: Internal server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/AdActionFailureResponse'
    */
   app.get(
     "/api/ad-graphics/:id",
@@ -102,7 +102,7 @@ function routes(app: Express) {
 
   /**
    * @openapi
-   * '/api/ad-graphics/{id}':
+   * /api/ad-graphics/{id}:
    *  put:
    *     tags:
    *     - AdGraphic
@@ -127,6 +127,12 @@ function routes(app: Express) {
    *              $ref: '#/components/schemas/AdGraphicSchema'
    *       404:
    *         description: Ad graphics not found
+   *       500:
+   *         description: Internal server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/AdActionFailureResponse'
    */
   app.put(
     "/api/ad-graphics/:id",
@@ -136,7 +142,7 @@ function routes(app: Express) {
 
   /**
    * @openapi
-   * '/api/ad-graphics/{id}':
+   * /api/ad-graphics/{id}:
    *  delete:
    *     tags:
    *     - AdGraphic
@@ -151,6 +157,12 @@ function routes(app: Express) {
    *         description: Ad graphics deleted successfully
    *       404:
    *         description: Ad graphics not found
+   *       500:
+   *         description: Internal server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/AdActionFailureResponse'
    */
   app.delete(
     "/api/ad-graphics/:id",
@@ -161,7 +173,7 @@ function routes(app: Express) {
 
   /**
    * @openapi
-   * '/api/users':
+   * /api/users:
    *  post:
    *     tags:
    *     - User
@@ -183,12 +195,18 @@ function routes(app: Express) {
    *        description: Conflict
    *      400:
    *        description: Bad request
+   *      500:
+   *        description: Internal server error
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/AdActionFailureResponse'
    */
   app.post("/api/users", [checkEmailNotUsed, validateResource(createUserSchema)], createUserHandler);
 
   /**
    * @openapi
-   * '/api/sessions':
+   * /api/sessions:
    *  get:
    *    tags:
    *    - Session
@@ -202,6 +220,12 @@ function routes(app: Express) {
    *              $ref: '#/components/schemas/GetSessionResponse'
    *      403:
    *        description: Forbidden
+   *      500:
+   *        description: Internal server error
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/AdActionFailureResponse'
    *  post:
    *    tags:
    *    - Session
@@ -221,6 +245,12 @@ function routes(app: Express) {
    *              $ref: '#/components/schemas/CreateSessionResponse'
    *      401:
    *        description: Unauthorized
+   *      500:
+   *        description: Internal server error
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/AdActionFailureResponse'
    *  delete:
    *    tags:
    *    - Session
@@ -230,6 +260,12 @@ function routes(app: Express) {
    *        description: Session deleted
    *      403:
    *        description: Forbidden
+   *      500:
+   *        description: Internal server error
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/AdActionFailureResponse'
    */
   app.post(
     "/api/sessions",
@@ -244,282 +280,352 @@ function routes(app: Express) {
   /**
    * @openapi
    * /api/ads:
-   *   post:
-   *     summary: Create a new ad
-   *     tags: [Ads]
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/CreateAdInput'
-   *     responses:
-   *       201:
-   *         description: Ad created successfully
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/Ad'
-   *       500:
-   *         description: Internal server error
+   *  post:
+   *    summary: Create a new ad
+   *    tags:
+   *      - Ads
+   *    security:
+   *      - bearerAuth: []
+   *    requestBody:
+   *      required: true
+   *      content:
+   *        application/json:
+   *          schema:
+   *            $ref: '#/components/schemas/CreateAdInput'
+   *    responses:
+   *      200:
+   *        description: Ad created successfully
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/AdActionSuccessResponse'
+   *      500:
+   *        description: Internal server error
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/AdActionFailureResponse'
    */
   app.post("/api/ads", [requireUser, authorize("Ad", "create")], createAdHandler);
 
   /**
    * @openapi
    * /api/ads/{id}:
-   *   put:
-   *     summary: Update an existing ad
-   *     tags: [Ads]
-   *     security:
-   *       - bearerAuth: []
-   *     parameters:
-   *       - name: id
-   *         in: path
-   *         required: true
-   *         description: Ad ID
-   *         schema:
-   *           type: string
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/UpdateAdInput'
-   *     responses:
-   *       200:
-   *         description: Ad updated successfully
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/Ad'
-   *       403:
-   *         description: Forbidden - User not authorized to update this ad
-   *       404:
-   *         description: Ad not found
-   *       500:
-   *         description: Internal server error
+   *  put:
+   *    summary: Update an existing ad
+   *    tags:
+   *      - Ads
+   *    security:
+   *      - bearerAuth: []
+   *    parameters:
+   *      - name: id
+   *        in: path
+   *        required: true
+   *        description: The ID of the ad
+   *    requestBody:
+   *      required: true
+   *      content:
+   *        application/json:
+   *          schema:
+   *            $ref: '#/components/schemas/UpdateAdInput'
+   *    responses:
+   *      200:
+   *        description: Ad updated successfully
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/AdActionSuccessResponse'
+   *      404:
+   *        description: Ad not found
+   *      500:
+   *        description: Internal server error
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/AdActionFailureResponse'
    */
-  app.put("/api/ads/:id", [requireUser, authorize("Ad", "update")], updateAdHandler);
-
-  /**
-  * @openapi
-  * /ads:
-  *   get:
-  *     summary: Get all ads
-  *     tags: [Ads]
-  *     description: Retrieve a list of all ads
-  *     responses:
-  *       200:
-  *         description: A list of ads
-  *         content:
-  *           application/json:
-  *             schema:
-  *               type: array
-  *               items:
-  *                 $ref: '#/components/schemas/Ad'
-  *       500:
-  *         description: Internal server error
-  */
-  app.get("/ads", getAllAdsHandler);
+  app.put(
+    "/api/ads/:id",
+    [requireUser, authorize("Ad", "update")],
+    updateAdHandler
+  );
 
   /**
    * @openapi
    * /api/ads/{id}:
-   *   get:
-   *     summary: Get a specific ad by ID
-   *     tags: [Ads]
-   *     parameters:
-   *       - name: id
-   *         in: path
-   *         required: true
-   *         description: Ad ID
-   *         schema:
-   *           type: string
-   *     responses:
-   *       200:
-   *         description: Ad details
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/Ad'
-   *       404:
-   *         description: Ad not found
-   *       500:
-   *         description: Internal server error
+   *  delete:
+   *    summary: Delete an existing ad
+   *    tags:
+   *      - Ads
+   *    security:
+   *      - bearerAuth: []
+   *    parameters:
+   *      - name: id
+   *        in: path
+   *        required: true
+   *        description: The ID of the ad
+   *    responses:
+   *      200:
+   *        description: Ad deleted successfully
+   *      404:
+   *        description: Ad not found
+   *      500:
+   *        description: Internal server error
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/AdActionFailureResponse'
    */
-  app.get("/api/ads/:id", getAdHandler);
+  app.delete(
+    "/api/ads/:id",
+    [requireUser, authorize("Ad", "delete")],
+    deleteAdHandler
+  );
 
   /**
    * @openapi
    * /api/ads/{id}:
-   *   delete:
-   *     summary: Delete a specific ad by ID
-   *     tags: [Ads]
-   *     security:
-   *       - bearerAuth: []
-   *     parameters:
-   *       - name: id
-   *         in: path
-   *         required: true
-   *         description: Ad ID
-   *         schema:
-   *           type: string
-   *     responses:
-   *       200:
-   *         description: Ad deleted successfully
-   *       403:
-   *         description: Forbidden - User not authorized to delete this ad
-   *       404:
-   *         description: Ad not found
-   *       500:
-   *         description: Internal server error
+   *  get:
+   *    summary: Get a specific ad by ID
+   *    tags:
+   *      - Ads
+   *    security:
+   *      - bearerAuth: []
+   *    parameters:
+   *      - name: id
+   *        in: path
+   *        required: true
+   *        description: The ID of the ad
+   *    responses:
+   *      200:
+   *        description: Ad retrieved successfully
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/AdActionSuccessResponse'
+   *      404:
+   *        description: Ad not found
+   *      500:
+   *        description: Internal server error
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/AdActionFailureResponse'
    */
-  app.delete("/api/ads/:id", [requireUser, authorize("Ad", "delete")], deleteAdHandler);
+  app.get(
+    "/api/ads/:id",
+    [requireUser, authorize("Ad", "read")],
+    getAdHandler
+  );
+
+  /**
+   * @openapi
+   * /api/ads:
+   *  get:
+   *    summary: Get all ads
+   *    tags:
+   *      - Ads
+   *    security:
+   *      - bearerAuth: []
+   *    responses:
+   *      200:
+   *        description: List of ads
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: array
+   *              items:
+   *                $ref: '#/components/schemas/AdActionSuccessResponse'
+   *      500:
+   *        description: Internal server error
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/AdActionFailureResponse'
+   */
+  app.get(
+    "/api/ads",
+    [requireUser, authorize("Ad", "read")],
+    getAllAdsHandler
+  );
 
   /**
    * @openapi
    * /api/ad-attributes:
-   *   post:
-   *     summary: Create a new ad attribute
-   *     tags: [Ad Attributes]
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/CreateAdAttributeInput'
-   *     responses:
-   *       201:
-   *         description: Ad attribute created successfully
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/AdAttribute'
-   *       500:
-   *         description: Internal server error
+   *  post:
+   *    summary: Create a new ad attribute
+   *    tags:
+   *      - AdAttributes
+   *    security:
+   *      - bearerAuth: []
+   *    requestBody:
+   *      required: true
+   *      content:
+   *        application/json:
+   *          schema:
+   *            $ref: '#/components/schemas/CreateAdAttributeInput'
+   *    responses:
+   *      201:
+   *        description: Ad attribute created successfully
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/CreateAdAttributeResponse'
+   *      500:
+   *        description: Internal server error
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/AdActionFailureResponse'
    */
-  app.post("/api/ad-attributes", [requireUser, authorize("AdAttribute", "create")], createAdAttributeHandler);
+  app.post(
+    "/api/ad-attributes",
+    [requireUser, authorize("AdAttributes", "create")],
+    createAdAttributeHandler
+  );
 
   /**
    * @openapi
    * /api/ad-attributes/{id}:
-   *   put:
-   *     summary: Update an existing ad attribute
-   *     tags: [Ad Attributes]
-   *     security:
-   *       - bearerAuth: []
-   *     parameters:
-   *       - name: id
-   *         in: path
-   *         required: true
-   *         description: Ad attribute ID
-   *         schema:
-   *           type: string
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/UpdateAdAttributeInput'
-   *     responses:
-   *       200:
-   *         description: Ad attribute updated successfully
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/AdAttribute'
-   *       404:
-   *         description: Ad attribute not found
-   *       500:
-   *         description: Internal server error
+   *  put:
+   *    summary: Update an ad attribute
+   *    tags:
+   *      - AdAttributes
+   *    security:
+   *      - bearerAuth: []
+   *    parameters:
+   *      - name: id
+   *        in: path
+   *        required: true
+   *        description: The ID of the ad attribute
+   *    requestBody:
+   *      required: true
+   *      content:
+   *        application/json:
+   *          schema:
+   *            $ref: '#/components/schemas/UpdateAdAttributeInput'
+   *    responses:
+   *      200:
+   *        description: Ad attribute updated successfully
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/CreateAdAttributeResponse'
+   *      404:
+   *        description: Ad attribute not found
+   *      500:
+   *        description: Internal server error
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/AdActionFailureResponse'
    */
-  app.put("/api/ad-attributes/:id", [requireUser, authorize("AdAttribute", "update")], updateAdAttributeHandler);
+  app.put(
+    "/api/ad-attributes/:id",
+    [requireUser, authorize("AdAttributes", "update")],
+    updateAdAttributeHandler
+  );
 
   /**
    * @openapi
    * /api/ad-attributes/{id}:
-   *   get:
-   *     summary: Get a specific ad attribute by ID
-   *     tags: [Ad Attributes]
-   *     parameters:
-   *       - name: id
-   *         in: path
-   *         required: true
-   *         description: Ad attribute ID
-   *         schema:
-   *           type: string
-   *     responses:
-   *       200:
-   *         description: Ad attribute details
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/AdAttribute'
-   *       404:
-   *         description: Ad attribute not found
-   *       500:
-   *         description: Internal server error
+   *  delete:
+   *    summary: Delete an ad attribute
+   *    tags:
+   *      - AdAttributes
+   *    security:
+   *      - bearerAuth: []
+   *    parameters:
+   *      - name: id
+   *        in: path
+   *        required: true
+   *        description: The ID of the ad attribute
+   *    responses:
+   *      200:
+   *        description: Ad attribute deleted successfully
+   *      404:
+   *        description: Ad attribute not found
+   *      500:
+   *        description: Internal server error
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/AdActionFailureResponse'
    */
-  app.get("/api/ad-attributes/:id", getAdAttributeHandler);
-
-  /**
- * @openapi
- * /api/ad-attributes/by-ad/{adId}:
- *   get:
- *     summary: Get ad attributes by ad ID
- *     tags: [Ad Attributes]
- *     parameters:
- *       - name: adId
- *         in: path
- *         required: true
- *         description: Ad ID to retrieve attributes for
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: List of ad attributes
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/AdAttribute'
- *       404:
- *         description: No ad attributes found for the given ad ID
- *       500:
- *         description: Internal server error
- */
-  app.get("/api/ad-attributes/by-ad/:id", getAdAttributeByAdHandler);
+  app.delete(
+    "/api/ad-attributes/:id",
+    [requireUser, authorize("AdAttributes", "delete")],
+    deleteAdAttributeHandler
+  );
 
   /**
    * @openapi
-   * /api/ad-attributes/{id}:
-   *   delete:
-   *     summary: Delete a specific ad attribute by ID
-   *     tags: [Ad Attributes]
-   *     security:
-   *       - bearerAuth: []
-   *     parameters:
-   *       - name: id
-   *         in: path
-   *         required: true
-   *         description: Ad attribute ID
-   *         schema:
-   *           type: string
-   *     responses:
-   *       200:
-   *         description: Ad attribute deleted successfully
-   *       404:
-   *         description: Ad attribute not found
-   *       500:
-   *         description: Internal server error
+   * /api/ad-attributes/{adId}:
+   *  get:
+   *    summary: Get all attributes for a specific ad
+   *    tags:
+   *      - AdAttributes
+   *    security:
+   *      - bearerAuth: []
+   *    parameters:
+   *      - name: adId
+   *        in: path
+   *        required: true
+   *        description: The ID of the ad
+   *    responses:
+   *      200:
+   *        description: List of ad attributes
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: array
+   *              items:
+   *                $ref: '#/components/schemas/CreateAdAttributeResponse'
+   *      404:
+   *        description: Ad attributes not found
+   *      500:
+   *        description: Internal server error
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/AdActionFailureResponse'
    */
-  app.delete("/api/ad-attributes/:id", [requireUser, authorize("AdAttribute", "delete")], deleteAdAttributeHandler);
+  app.get(
+    "/api/ad-attributes/ad/:adId",
+    [requireUser, authorize("AdAttributes", "read")],
+    getAdAttributeByAdHandler
+  );
+
+  /**
+   * @openapi
+   * /api/ad-attributes:
+   *  get:
+   *    summary: Get all ad attributes
+   *    tags:
+   *      - AdAttributes
+   *    security:
+   *      - bearerAuth: []
+   *    responses:
+   *      200:
+   *        description: List of ad attributes
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: array
+   *              items:
+   *                $ref: '#/components/schemas/CreateAdAttributeResponse'
+   *      500:
+   *        description: Internal server error
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/AdActionFailureResponse'
+   */
+  app.get(
+    "/api/ad-attributes",
+    [requireUser, authorize("AdAttributes", "read")],
+    getAdAttributeHandler
+  );
 }
 
 export default routes;
