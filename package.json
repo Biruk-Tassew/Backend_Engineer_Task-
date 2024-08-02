@@ -2,8 +2,7 @@
   "name": "rest-api-tutorial-updated",
   "version": "1.0.0",
   "main": "index.js",
-  "author": "Tom Nagle",
-  "license": "MIT",
+  "author": "Biruk Tassew",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "build": "tsc"

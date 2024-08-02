@@ -7,7 +7,6 @@ import connect from "./utils/connect";
 import logger from "./utils/logger";
 import routes from "./routes";
 import deserializeUser from "./middleware/deserializeUser";
-import { restResponseTimeHistogram, startMetricsServer } from "./utils/metrics";
 import swaggerDocs from "./utils/swagger";
 
 const port = config.get<number>("port");
@@ -21,14 +20,7 @@ app.use(deserializeUser);
 app.use(
   responseTime((req: Request, res: Response, time: number) => {
     if (req?.route?.path) {
-      restResponseTimeHistogram.observe(
-        {
-          method: req.method,
-          route: req.route.path,
-          status_code: res.statusCode,
-        },
-        time * 1000
-      );
+     
     }
   })
 );
@@ -39,8 +31,6 @@ app.listen(port, async () => {
   await connect();
 
   routes(app);
-
-  startMetricsServer();
 
   swaggerDocs(app, port);
 });
