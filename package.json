@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "main": "index.js",
   "author": "Biruk Tassew",
+  "engines": {
+    "node": "20.9.0"
+  },
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "start": "node dist/app.js"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",

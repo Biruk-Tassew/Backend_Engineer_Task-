@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 export interface AdAttributeInput {
-  adId: mongoose.Schema.Types.ObjectId;
+  adId: string;
   key: string;
   value: string;
 }
