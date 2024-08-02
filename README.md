@@ -102,7 +102,7 @@ To set up the project locally, follow these steps:
 
 ### API Documentation
 
-API documentation is provided using Postman. You can refer to the swagger to explore and test the API endpoints.
+API documentation is provided using Swagger. You can refer to the swagger to explore and test the API endpoints.
 
 ## API Endpoints
 
