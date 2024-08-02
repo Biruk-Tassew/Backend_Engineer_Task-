@@ -30,7 +30,7 @@ This project is part of an evaluation for the Backend Engineer position. It invo
 
 4. **API Endpoints**
     - **RESTful APIs:** Endpoints to support all functionalities with validation and error handling.
-    - **Documentation:** API documentation available using tools like Swagger or Postman.
+    - **Documentation:** API documentation available using tools like Swagger.
 
 ## Roles and Permissions
 
@@ -184,7 +184,7 @@ Below is a high-level architectural diagram of our RESTful backend API, showcasi
 
 ## Acknowledgements
 
-Thank you for taking the time to explore our project.
+Thank you for taking the time to explore my project.
 
 
 
