@@ -82,23 +82,35 @@ To set up the project locally, follow these steps:
     yarn start
 
     # OR using npm
-    npm start
+    npm run dev
     ```
 
 ## Usage
 
 ### Running the Project
 
-1. To start the backend server:
+1. To build the backend server:
+    ```bash
+    # Using yarn
+    yarn dev
+
+    # OR using npm
+    npm run build
+    ```
+
+2. To run the backend server:
     ```bash
     # Using yarn
     yarn start
 
     # OR using npm
-    npm start
+    npm run start
     ```
 
-2. The server will be running at `http://localhost:5000`.
+
+The server will be running at `http://localhost:1337`.
+
+And you can find the swagger doc at `http://localhost:1337/docs`
 
 ### API Documentation
 
