@@ -166,19 +166,20 @@ import { object, string, number, TypeOf } from "zod";
 
 export const createAdGraphicSchema = object({
   body: object({
-    file: string({
-      required_error: "File is required",
-    }),
     fileName: string({
       required_error: "File name is required",
     }),
     adId: string({
       required_error: "Ad ID is required",
     }),
-    videoCompressionLevel: number()
-      .min(0, "Compression level must be at least 0%")
-      .max(100, "Compression level cannot exceed 100%")
-      .optional(),
+    videoCompressionLevel: string()
+      .optional()
+      .transform((val) => (val ? parseInt(val, 10) : undefined))
+      .pipe(
+        number()
+          .min(0, "Compression level must be at least 0%")
+          .max(100, "Compression level cannot exceed 100%")
+      ),
   }),
 });
 
