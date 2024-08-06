@@ -194,6 +194,10 @@ Below is a high-level architectural diagram of our RESTful backend API, showcasi
 
 ![Architecture Diagram](./assets/architecture_diagram.png)
 
+## Deployment Link
+
+Here is the link for the system deployed on Render: [Link](https://backend-engineer-task.onrender.com/docs)
+
 ## Acknowledgements
 
 Thank you for taking the time to explore my project.
